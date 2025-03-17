@@ -1,4 +1,5 @@
 import React from "react";
+import { Outlet } from "react-router-dom"; 
 
 import "../Styles/User.css"; 
 import Header from '../header/Header';
@@ -16,8 +17,9 @@ const User = () => {
       </nav> */}
       <Header />
       <div className="user-content">
-        <h2>Welcome, User</h2>
-        <p>Start your background verification process.</p>
+        {/* <h2>Welcome, User</h2>
+        <p>Start your background verification process.</p> */}
+        <Outlet />
       </div>
     </div>
   );
