@@ -72,7 +72,7 @@ const StartBGV = () => {
        <Header/>
        <section className="form-container">
 
-       // Add this component above your form
+       
 <div className="progress-indicator">
   <div className={`step ${step >= 1 ? 'active' : ''}`}>1</div>
   <div className="line"></div>

@@ -4,7 +4,9 @@
     padding: 0;
     box-sizing: border-box;
 }
-
+h3{
+    text-align: center;
+}
 /* Ensure page starts from the top */
 html, body {
     scroll-behavior: smooth;
@@ -27,12 +29,13 @@ html, body {
    position: relative;
    margin: 0 auto;
    max-width: 1200px;
-   margin-top: 80px;
+   margin-top: 20px;
    z-index: 0;
    display: flex;
    flex-direction: column;
    align-content: center;
    border-radius: 15px; 
+   
 }
 
 .progress-indicator {
@@ -190,12 +193,12 @@ button {
 
 /* Next and Previous Buttons */
 .next-btn {
-    background: #007bff;
+    background: #FF6045;
     color: white;
 }
 
 .next-btn:hover {
-    background: #0056b3;
+    background: #d45a44;
 }
 
 .prev-btn {
