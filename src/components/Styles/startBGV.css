@@ -1,0 +1,244 @@
+/* Reset default margin & padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Ensure page starts from the top */
+html, body {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+    height: 100%;
+    width: 100%;
+    font-size: 1.25rem; /* Default font size */
+    font-family: Arial, sans-serif;
+    background: #f8f9fa;
+}
+
+/* Default Container Styling */
+
+
+
+.start-bgv-container {
+   background-color: white;
+   padding: 40px;
+   width: 60%;
+   position: relative;
+   margin: 0 auto;
+   max-width: 1200px;
+   margin-top: 80px;
+   z-index: 0;
+   display: flex;
+   flex-direction: column;
+   align-content: center;
+   border-radius: 15px; 
+}
+
+.progress-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+  
+  .progress-indicator .step {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  
+  .progress-indicator .step.active {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .progress-indicator .line {
+    flex: 1;
+    height: 3px;
+    background-color: #e9ecef;
+    margin: 0 10px;
+  }
+  
+  .progress-indicator .line.active {
+    background-color: #007bff;
+  }
+
+/* Page Heading */
+.page-heading {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+/* Form Sections */
+.form-section {
+    display: none;
+    width: 100%;
+}
+form{
+    /* min-width: 650px; */
+}
+
+.form-section.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Smooth section transition */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form Group */
+.form-group {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+}
+
+/* Name Fields - Display Horizontally */
+.name-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.name-fields {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.name-fields input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Input, Select, and Textarea Styling */
+input, select, textarea {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+/* Textarea Auto Resize */
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* File Input Styling */
+.file-input-container {
+    border: 2px dashed #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+    background: #f9f9f9;
+}
+
+.file-input-container:hover {
+    background: #e9ecef;
+}
+
+.file-input-container input[type="file"] {
+    display: none;
+}
+
+.file-input-label {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #007bff;
+    cursor: pointer;
+}
+
+/* Buttons */
+button {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+/* Next and Previous Buttons */
+.next-btn {
+    background: #007bff;
+    color: white;
+}
+
+.next-btn:hover {
+    background: #0056b3;
+}
+
+.prev-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.prev-btn:hover {
+    background: #5a6268;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: #28a745;
+    color: white;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.submit-btn:hover {
+    background: #218838;
+}
+
+/* Multi-Select Styling */
+.form-group select {
+    height: 180px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .start-bgv-container {
+        width: 95%;
+        padding: 30px;
+    }
+
+    .name-fields {
+        flex-direction: column;
+    }
+
+    .prev-btn, .next-btn {
+        width: 100%;
+        margin-bottom: 12px;
+    }
+}
