@@ -10,7 +10,6 @@ root.render(
   <React.StrictMode>
      {/* Wrap App with BrowserRouter */}
       <App />
-    
   </React.StrictMode>
 );
 
