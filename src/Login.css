@@ -68,7 +68,7 @@ button {
 }
 
 button:hover {
-  background-color: #e04e36; /* Darker shade for hover */
+  background-color: #28a745; /* Darker shade for hover */
 }
 
 .error {

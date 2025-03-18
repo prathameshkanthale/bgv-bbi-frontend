@@ -8,8 +8,8 @@ const ContactUs = () => {
       <p>If you have any questions, please reach out to us.</p>
       
       <div className="contact-info">
-        <p><strong>Email:</strong> support@bgi-portal.com</p>
-        <p><strong>Phone:</strong> +91 98765 43210</p>
+        <p><strong>Email:</strong> mybbi@bbinsight.com</p>
+        <p><strong>Phone:</strong> 070903 42999</p>
         <p><strong>Address:</strong>Bangalore
 Karle Infra Special Economic Zone,
 Karle Town Center, North - East Bay, 1st Floor,
