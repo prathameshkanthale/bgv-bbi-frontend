@@ -244,4 +244,10 @@ button {
         width: 100%;
         margin-bottom: 12px;
     }
+
+    .error {
+        color: red;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+      }
 }
