@@ -9,6 +9,7 @@ import UserHome from "./components/user/UserHome";  // Import UserHome
 import StartBGV from "./components/user/StartBGV";
 import ChangePassword from "./components/user/ChangePassword";
 import ContactUs from "./components/user/ContactUs";
+import UserDetails from './components/admin/UserDetails';
 
 function App() {
  
@@ -29,6 +30,7 @@ function App() {
 
         {/* Admin Pages inside AdminLayout */}
         <Route path="/admin" element={<AdminLayout />}>
+          <Route path="user-details" element={<UserDetails />} />
           <Route index element={<Admin />} /> 
           <Route path="add-user" element={<AddUser />} />
           <Route path="user-details" element={<div>User Details Page</div>} />
