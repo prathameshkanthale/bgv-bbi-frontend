@@ -16,12 +16,12 @@ const User = () => {
         </ul>
       </nav> */}
       <Header />
-      <div className="user-content">
+      {/* <div className="user-content"> */}
         {/* <h2>Welcome, User</h2>
         <p>Start your background verification process.</p> */}
         <Outlet />
       </div>
-    </div>
+    // </div>
   );
 };
 

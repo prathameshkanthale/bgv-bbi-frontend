@@ -58,17 +58,19 @@
 }
 
 .user-content { 
-  margin-top: 60px;
-  padding: 20px;   
-   min-height: calc(100vh - 60px);  
+  /* margin-top: 60px; */
+  padding: 100px;   
+   min-height: calc(120vh - 100px);  
 } 
 .user-content {
-  background-image: url('D:\Reactjs\login-app\login-app\public\bgimage.jpg'); /* Replace with your image path */
-  background-size: cover; /* This will cover the entire div */
-  background-position: center; /* Center the image */
-  background-repeat: no-repeat; /* Prevent image repetition */
-  min-height: 100vh; /* Adjust the height as needed */
-  color: rgb(1, 14, 4); /* Optional: adjust text color for visibility */
+  background-image: url('D:\Reactjs\login-app\login-app\public\bgimage.jpg'); 
+  background-size: cover; 
+  background-position: center; 
+  background-repeat: no-repeat; 
+  min-height: 100vh; 
+  color: rgb(1, 14, 4); 
+  overflow: hidden;
+  
 }
 
   
