@@ -27,8 +27,53 @@
   background-color: #FF6045;
   padding: 10px;
 } */
-
-.user-content {
-  margin-top: 60px;
-  padding: 20px;
+.fadeIn {
+  animation: fadeIn 2s ease-in;
 }
+
+.slideIn {
+  animation: slideIn 2s ease-in;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide In Animation */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.user-content { 
+  margin-top: 60px;
+  padding: 20px;   
+   min-height: calc(100vh - 60px);  
+} 
+.user-content {
+  background-image: url('D:\Reactjs\login-app\login-app\public\bgimage.jpg'); /* Replace with your image path */
+  background-size: cover; /* This will cover the entire div */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Prevent image repetition */
+  min-height: 100vh; /* Adjust the height as needed */
+  color: rgb(1, 14, 4); /* Optional: adjust text color for visibility */
+}
+
+  
+  
+  
+
+  
+

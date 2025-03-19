@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route ,useLocation } from "react-router-dom";
 import Login from "./Login";
 import AdminLayout from "./components/admin/AdminLayout";  
 import Admin from "./components/admin/Admin";  
@@ -11,7 +11,9 @@ import ChangePassword from "./components/user/ChangePassword";
 import ContactUs from "./components/user/ContactUs";
 
 function App() {
+ 
   return (
+    
     <BrowserRouter>
       <Routes>
         {/* Login Page */}
@@ -33,7 +35,9 @@ function App() {
           <Route path="search-user" element={<div>Search User Page</div>} />
         </Route>
       </Routes>
-    </BrowserRouter>
+      </BrowserRouter>
+      
+    
   );
 }
 
