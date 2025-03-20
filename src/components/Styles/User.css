@@ -63,7 +63,7 @@
    min-height: calc(120vh - 100px);  
 } 
 .user-content {
-  background-image: url('D:\Reactjs\login-app\login-app\public\bgimage.jpg'); 
+  background-image: url('../../../public/bgimage.jpg'); 
   background-size: cover; 
   background-position: center; 
   background-repeat: no-repeat; 
