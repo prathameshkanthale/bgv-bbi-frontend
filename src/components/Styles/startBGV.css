@@ -19,9 +19,6 @@ html, body {
 }
 
 /* Default Container Styling */
-
-
-
 .start-bgv-container {
    background-color: white;
    padding: 40px;
@@ -35,7 +32,6 @@ html, body {
    flex-direction: column;
    align-content: center;
    border-radius: 15px; 
-   
 }
 
 .progress-indicator {
@@ -43,9 +39,9 @@ html, body {
     align-items: center;
     justify-content: center;
     margin-bottom: 30px;
-  }
+}
   
-  .progress-indicator .step {
+.progress-indicator .step {
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -55,23 +51,23 @@ html, body {
     justify-content: center;
     font-weight: bold;
     transition: background-color 0.3s ease;
-  }
+}
   
-  .progress-indicator .step.active {
+.progress-indicator .step.active {
     background-color: #007bff;
     color: white;
-  }
+}
   
-  .progress-indicator .line {
+.progress-indicator .line {
     flex: 1;
     height: 3px;
     background-color: #e9ecef;
     margin: 0 10px;
-  }
+}
   
-  .progress-indicator .line.active {
+.progress-indicator .line.active {
     background-color: #007bff;
-  }
+}
 
 /* Page Heading */
 .page-heading {
@@ -229,6 +225,80 @@ button {
     height: 180px;
 }
 
+/* ===== Skills Section Styles ===== */
+.skills-input-container {
+    margin-bottom: 8px;
+}
+
+.skills-dropdown {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+.custom-skill-input {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.custom-skill-text {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.add-skill-btn {
+    padding: 10px 15px;
+    background-color: #FF6045;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.add-skill-btn:hover {
+    background-color: #e0553d;
+}
+
+.selected-skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.skill-tag {
+    background-color: #e9ecef;
+    padding: 5px 12px;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.remove-skill {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-left: 6px;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+.remove-skill:hover {
+    color: #dc3545;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .start-bgv-container {
@@ -249,5 +319,14 @@ button {
         color: red;
         font-size: 0.875rem;
         margin-top: 0.25rem;
-      }
+    }
+
+    /* Skills section mobile adjustments */
+    .custom-skill-input {
+        flex-direction: column;
+    }
+    
+    .add-skill-btn {
+        width: 100%;
+    }
 }

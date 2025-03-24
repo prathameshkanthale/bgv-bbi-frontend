@@ -1,0 +1,26 @@
+/* Update button container (remains at top-right) */
+.update-btn-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -10px;
+    margin-bottom: 15px;
+  }
+  
+  /* Smaller Update Button */
+  .update-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 4px 8px;  /* Reduced padding */
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 0.3s;
+    width: 80px;  /* Decreased width */
+    text-align: center;
+  }
+  
+  .update-btn:hover {
+    background-color: #0056b3;
+  }
+  

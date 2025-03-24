@@ -1,62 +1,42 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const UserDetails = () => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch user data from your API or local storage (replace with your actual data source)
+    // Fetch user data (replace with actual API call)
     const fetchUsers = async () => {
-      // Sample static data for demonstration; replace with actual fetch logic.
       const sampleUsers = [
-        {
-          id: 1,
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'john.doe@example.com',
-          password: 'password123',
-          verificationStatus: 'Verified',
-        },
-        {
-          id: 2,
-          firstName: 'Jane',
-          lastName: 'Smith',
-          email: 'jane.smith@example.com',
-          password: 'password456',
-          verificationStatus: 'Pending',
-        },
+        { id: 1, firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'password123', verificationStatus: 'Verified' },
+        { id: 2, firstName: 'Jane', lastName: 'Smith', email: 'jane.smith@example.com', password: 'password456', verificationStatus: 'Pending' }
       ];
-
       setUsers(sampleUsers);
     };
 
     fetchUsers();
   }, []);
 
-  // Define actions for buttons here (you can implement real logic later)
+  // Button Actions
   const handleUpdate = (id) => {
     console.log(`Update user with id: ${id}`);
-    // Logic to update user
   };
 
   const handleDelete = (id) => {
     console.log(`Delete user with id: ${id}`);
-    // Logic to delete user
   };
 
   const handleMore = (id) => {
-    console.log(`View more details for user with id: ${id}`);
-    // Logic to view more user details
+    navigate(`/admin/user-details/${id}`);
   };
+
+  // Search filter
   const filteredUsers = users.filter(user => {
     const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
-    const email = user.email.toLowerCase();
-    return (
-      fullName.includes(searchTerm.toLowerCase()) ||
-      email.includes(searchTerm.toLowerCase())
-    );
+    return fullName.includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase());
   });
-
 
   return (
     <div>
@@ -80,7 +60,7 @@ const UserDetails = () => {
           </tr>
         </thead>
         <tbody>
-        {filteredUsers.map(user => (
+          {filteredUsers.map(user => (
             <tr key={user.id}>
               <td>{user.id}</td>
               <td>{user.firstName}</td>
