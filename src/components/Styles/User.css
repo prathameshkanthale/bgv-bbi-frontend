@@ -63,7 +63,12 @@
    min-height: calc(120vh - 100px);  
 } 
 .user-content {
+
+     
+   /* background-image: url('C:\Users\anush\OneDrive\Documents\ReactJSProject\bgv-bbi-frontend\public\bgimage.jpg');   */
+
   background-image: url('../../../public/bgimage.jpg'); 
+
   background-size: cover; 
   background-position: center; 
   background-repeat: no-repeat; 
@@ -71,7 +76,7 @@
   color: rgb(1, 14, 4); 
   overflow: hidden;
   
-}
+} 
 
   
   

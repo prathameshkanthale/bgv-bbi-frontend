@@ -6,10 +6,43 @@ const AddUser = () => {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
+  
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`User Added!\nFirst Name: ${firstName}\nLast Name: ${lastName}\nEmail: ${email}\nPassword: ${password}`);
+
+    // Create a user object from the form data
+    const user = {
+      firstName,
+      lastName,
+      email,
+      password,
+      role,
+    };
+
+    try {
+      // Make a POST request to the backend
+      const response = await fetch("/user-login/addUser", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      console.log(data);
+      alert(`User Added Successfully!\nUser ID: ${data.firstName}`);
+      console.log(data.id);
+    } catch (error) {
+      console.error("Error adding user:", error);
+      alert("Failed to add user. Please try again.");
+    }
   };
 
   return (
@@ -56,6 +89,17 @@ const AddUser = () => {
             placeholder="Enter Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Role:</label>
+          <input
+            type="text"
+            placeholder="Enter Role as USER or ADMIN"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
             required
           />
         </div>

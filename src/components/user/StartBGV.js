@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import "../Styles/startBGV.css"; // Ensure this CSS file exists
+import "../Styles/startBGV.css";
 import Header from "../header/Header";
 
 const StartBGV = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({ 
     firstName: "",
     middleName: "",
     lastName: "",
@@ -30,6 +30,9 @@ const StartBGV = () => {
 
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
+  const [customSkill, setCustomSkill] = useState("");
+  const [showCustomSkillInput, setShowCustomSkillInput] = useState(false);
+  
   const predefinedSkills = [
     "Java",
     "React",
@@ -54,7 +57,6 @@ const StartBGV = () => {
     else if (!/^\d{10}$/.test(formData.phone)) newErrors.phone = "Phone must be 10 digits";
     if (!formData.address.trim()) newErrors.address = "Address is required";
 
-    // Profile photo validation
     if (formData.profilePhoto) {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       if (!allowedTypes.includes(formData.profilePhoto.type)) {
@@ -79,7 +81,6 @@ const StartBGV = () => {
     const newErrors = {};
     if (formData.skills.length === 0) newErrors.skills = "At least one skill is required";
 
-    // File validations for PDFs
     const pdfFiles = [
       { name: "resume", file: formData.resume },
       { name: "aadharProof", file: formData.aadharProof },
@@ -105,19 +106,41 @@ const StartBGV = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value, files, options } = e.target;
+    const { name, value, files } = e.target;
+    setFormData({
+      ...formData,
+      [name]: files ? files[0] || null : value,
+    });
+  };
 
-    if (name === "skills") {
-      const selectedSkills = Array.from(options)
-        .filter((option) => option.selected)
-        .map((option) => option.value);
-      setFormData({ ...formData, skills: selectedSkills });
-    } else {
+  const handleSkillChange = (e) => {
+    const selectedSkill = e.target.value;
+    if (selectedSkill === "Other") {
+      setShowCustomSkillInput(true);
+    } else if (selectedSkill && !formData.skills.includes(selectedSkill)) {
       setFormData({
         ...formData,
-        [name]: files ? files[0] || null : value,
+        skills: [...formData.skills, selectedSkill],
       });
     }
+  };
+
+  const handleCustomSkillAdd = () => {
+    if (customSkill.trim() && !formData.skills.includes(customSkill)) {
+      setFormData({
+        ...formData,
+        skills: [...formData.skills, customSkill],
+      });
+      setCustomSkill("");
+      setShowCustomSkillInput(false);
+    }
+  };
+
+  const removeSkill = (skillToRemove) => {
+    setFormData({
+      ...formData,
+      skills: formData.skills.filter(skill => skill !== skillToRemove),
+    });
   };
 
   const nextStep = () => {
@@ -191,7 +214,7 @@ const StartBGV = () => {
             )}
 
             {step === 2 && (
-              <div className="form-section active">
+              <div className="form-section active"> 
                 <h3>Education & Experience</h3>
                 <div className="form-group">
                   <label>Education</label>
@@ -215,20 +238,64 @@ const StartBGV = () => {
               </div>
             )}
 
-            {step === 3 && (
-              <div className="form-section active">
-                <h3>Skills & Documents</h3>
-                <div className="form-group">
-                  <label>Skills</label>
-                  <select name="skills" onChange={handleChange} multiple required>
-                    {predefinedSkills.map((skill, index) => (
-                      <option key={index} value={skill}>
-                        {skill}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.skills && <span className="error">{errors.skills}</span>}
-                </div>
+{step === 3 && (
+  <div className="form-section active">
+    <h3>Skills & Documents</h3>
+    <div className="form-group">
+      <label>Skills</label>
+      <div className="skills-input-container">
+        <select 
+          name="skills" 
+          onChange={handleSkillChange}
+          value=""
+          className="skills-dropdown"
+        >
+          <option value="" disabled>Select a skill</option>
+          {predefinedSkills.map((skill, index) => (
+            <option key={index} value={skill}>
+              {skill}
+            </option>
+          ))}
+        </select>
+        
+        {showCustomSkillInput && (
+          <div className="custom-skill-input">
+            <input
+              type="text"
+              value={customSkill}
+              onChange={(e) => setCustomSkill(e.target.value)}
+              placeholder="Enter skill"
+              className="custom-skill-text"
+            />
+            <button 
+              type="button" 
+              onClick={handleCustomSkillAdd}
+              className="add-skill-btn"
+            >
+              +
+            </button>
+          </div>
+        )}
+      </div>
+      
+      <div className="selected-skills-container">
+        {formData.skills.map((skill, index) => (
+          <span key={index} className="skill-tag">
+            {skill}
+            <button 
+              type="button" 
+              onClick={() => removeSkill(skill)}
+              className="remove-skill"
+            >
+              ×
+            </button>
+          </span>
+        ))}
+      </div>
+      
+      {errors.skills && <span className="error">{errors.skills}</span>}
+    </div>
+                
                 {[
                   "resume",
                   "aadharProof",
