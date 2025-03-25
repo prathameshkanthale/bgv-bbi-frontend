@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./Login.css";
-import Admin from "./components/admin/Admin";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -11,28 +10,43 @@ const Login = () => {
 
   const navigate = useNavigate(); // Initialize navigate function
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
-    const validEmail = "user@example.com";
-    const validPassword = "password123";
-    const role ="ADMIN"; 
-
-    if (email === validEmail && password === validPassword) {
-      alert("Login Successful!");
-      setError("");
-      setShowForgotPassword(false);
-
-      navigate("/user"); // Redirect to User page
-    } else {
-      setError("Invalid email or password");
+    try {
+      console.log("Credentails :" ,email);
+      console.log("Credentails :" ,password);
+      const response = await fetch("/user/validateUser", {
+        method: "POST",
+        
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ emailId: email, password: password }), // Prepare data for API
+      });
+        console.log("response",response);
+      if (response.ok) {
+        const result = await response.json(); // Assuming the response is in JSON format.
+        
+        // Assuming the backend returns a role. Adjust this based on your API response structure
+        if (result.role === "ADMIN") {
+          navigate("/admin"); // Redirect to Admin page
+        } else {
+          navigate("/user"); // Redirect to User page
+        }
+      } else {
+        const errorMessage = await response.text(); // Get error message from response
+        setError(errorMessage);
+        setShowForgotPassword(true);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      setError("An error occurred. Please try again later.");
       setShowForgotPassword(true);
     }
   };
 
   return (
     <div className="login-wrapper">
-      {/* Logo in the top-left corner */}
       <img
         src="https://bbinsight.com/hs-fs/hubfs/BBI_Navy_Medium_Website.png?width=100&height=48&name=BBI_Navy_Medium_Website.png"
         alt="Company Logo"
