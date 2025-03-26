@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../Styles/startBGV.css";
 import Header from "../header/Header";
 
 const StartBGV = () => {
   const [formData, setFormData] = useState({ 
     firstName: "",
-    middleName: "",
     lastName: "",
     email: "",
     phone: "",
@@ -32,6 +31,10 @@ const StartBGV = () => {
   const [errors, setErrors] = useState({});
   const [customSkill, setCustomSkill] = useState("");
   const [showCustomSkillInput, setShowCustomSkillInput] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState({ type: "", text: "" });
+  const [detailId, setDetailId] = useState(null);
+  const fileInputRef = useRef(null);
   
   const predefinedSkills = [
     "Java",
@@ -43,8 +46,26 @@ const StartBGV = () => {
     "Other",
   ];
 
+  const documentSteps = [
+    "resume",
+    "tenthMarksheet",
+    "twelfthMarksheet",
+    "aadharProof",
+    "graduationMarksheet",
+    "postGraduationMarksheet",
+    "experienceLetter",
+    "profilePhoto",
+    "skills"
+  ];
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
+
+  useEffect(() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   }, [step]);
 
   const validateStep1 = () => {
@@ -56,50 +77,48 @@ const StartBGV = () => {
     if (!formData.phone.trim()) newErrors.phone = "Phone is required";
     else if (!/^\d{10}$/.test(formData.phone)) newErrors.phone = "Phone must be 10 digits";
     if (!formData.address.trim()) newErrors.address = "Address is required";
+    if (!formData.education.trim()) newErrors.education = "Education is required";
+    if (!formData.panNo.trim()) newErrors.panNo = "PAN Number is required";
 
-    if (formData.profilePhoto) {
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-      if (!allowedTypes.includes(formData.profilePhoto.type)) {
-        newErrors.profilePhoto = "Profile photo must be a JPEG, JPG, or PNG file";
-      } else if (formData.profilePhoto.size > 10 * 1024 * 1024) {
-        newErrors.profilePhoto = "Profile photo must be less than 10 MB";
-      }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateDocumentStep = (docName) => {
+    const newErrors = {};
+    
+    const optionalDocuments = ["postGraduationMarksheet", "experienceLetter"];
+    if (optionalDocuments.includes(docName)) {
+      return true;
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const validateStep2 = () => {
-    const newErrors = {};
-    if (!formData.education.trim()) newErrors.education = "Education is required";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const validateStep3 = () => {
-    const newErrors = {};
-    if (formData.skills.length === 0) newErrors.skills = "At least one skill is required";
-
-    const pdfFiles = [
-      { name: "resume", file: formData.resume },
-      { name: "aadharProof", file: formData.aadharProof },
-      { name: "tenthMarksheet", file: formData.tenthMarksheet },
-      { name: "twelfthMarksheet", file: formData.twelfthMarksheet },
-      { name: "graduationMarksheet", file: formData.graduationMarksheet },
-      { name: "postGraduationMarksheet", file: formData.postGraduationMarksheet },
-      { name: "experienceLetter", file: formData.experienceLetter },
-    ];
-
-    pdfFiles.forEach(({ name, file }) => {
+    if (docName === "profilePhoto") {
+      if (formData.profilePhoto) {
+        const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+        if (!allowedTypes.includes(formData.profilePhoto.type)) {
+          newErrors.profilePhoto = "Profile photo must be a JPEG, JPG, or PNG file";
+        } else if (formData.profilePhoto.size > 10 * 1024 * 1024) {
+          newErrors.profilePhoto = "Profile photo must be less than 10 MB";
+        }
+      } else {
+        newErrors.profilePhoto = "Profile photo is required";
+      }
+    } else if (docName !== "skills") {
+      const file = formData[docName];
       if (file) {
         if (file.type !== "application/pdf") {
-          newErrors[name] = "File must be a PDF";
+          newErrors[docName] = "File must be a PDF";
         } else if (file.size > 10 * 1024 * 1024) {
-          newErrors[name] = "File must be less than 10 MB";
+          newErrors[docName] = "File must be less than 10 MB";
         }
+      } else {
+        newErrors[docName] = "This document is required";
       }
-    });
+    } else if (docName === "skills") {
+      if (formData.skills.length === 0) {
+        newErrors.skills = "At least one skill is required";
+      }
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -111,6 +130,15 @@ const StartBGV = () => {
       ...formData,
       [name]: files ? files[0] || null : value,
     });
+  };
+
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setFormData({
+      ...formData,
+      [name]: files ? files[0] || null : null,
+    });
+    e.target.value = "";
   };
 
   const handleSkillChange = (e) => {
@@ -143,19 +171,172 @@ const StartBGV = () => {
     });
   };
 
-  const nextStep = () => {
-    if (step === 1 && !validateStep1()) return;
-    if (step === 2 && !validateStep2()) return;
+  const submitPersonalInfo = async () => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          education: formData.education,
+          currentEmployer: formData.currentEmployer,
+          designation: formData.designation,
+          experience: formData.experience,
+          passportId: formData.passportId,
+          pfId: formData.pfId,
+          panNo: formData.panNo
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save personal information');
+      }
+
+      const data = await response.json();
+      setDetailId(data.detailId); 
+      setSubmitMessage({ type: "success", text: "Personal information saved successfully!" });
+      return true; 
+    } catch (error) {
+      console.error('Error:', error);
+      setSubmitMessage({ type: "error", text: error.message || "Failed to save personal information. Please try again." });
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const uploadDocument = async (type, file) => {
+    if (!detailId) {
+      setSubmitMessage({ type: "error", text: "Please complete personal information first" });
+      return false;
+    }
+
+    if (!file && !["postGraduationMarksheet", "experienceLetter"].includes(type)) {
+      setSubmitMessage({ type: "error", text: "Please select a file to upload" });
+      return false;
+    }
+
+    // Skip upload for optional documents if no file selected
+    if (!file && ["postGraduationMarksheet", "experienceLetter"].includes(type)) {
+      return true;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      console.log(`Uploading ${type} for user ${detailId}`, file);
+
+      const response = await fetch(`/users/${detailId}/upload/${type}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      console.log('Upload response:', response); 
+
+      if (!response.ok) {
+        console.log('response not found', response); 
+        const errorData = await response.json().catch(() => ({}));
+        console.log(errorData);
+        throw new Error(errorData.message || `Failed to upload ${type}`);
+      }
+
+      const data = await response.text;
+      console.log(`Upload successful:`, data);
+      setSubmitMessage({ type: "success", text: `${getDocumentLabel(type)} uploaded successfully!` });
+      return true;
+    } catch (error) {
+      console.error(`Upload error:`, error);
+      setSubmitMessage({ 
+        type: "error", 
+        text: error.message || `Failed to upload ${getDocumentLabel(type)}. Please try again.` 
+      });
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const nextStep = async () => {
+    if (step === 1) {
+      if (!validateStep1()) return;
+      const success = await submitPersonalInfo();
+      if (!success) return;
+    } else if (step > 1 && step <= documentSteps.length + 1) {
+      const currentDoc = documentSteps[step - 2];
+      if (!validateDocumentStep(currentDoc)) return;
+      
+      if (currentDoc !== "skills") {
+        const uploadSuccess = await uploadDocument(currentDoc, formData[currentDoc]);
+        if (!uploadSuccess) return;
+      }
+    }
+    
     setStep(step + 1);
   };
 
   const prevStep = () => setStep(step - 1);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateStep3()) {
-      console.log("Form Submitted:", formData);
+    if (!validateDocumentStep("skills")) return;
+
+    setIsSubmitting(true);
+    try {
+      if (detailId && formData.skills.length > 0) {
+        const response = await fetch(`/users/${detailId}/skills`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ skills: formData.skills })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to save skills');
+        }
+
+        const data = await response.json();
+        setSubmitMessage({ type: "success", text: "Background verification submitted successfully!" });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setSubmitMessage({ type: "error", text: error.message || "Failed to complete submission. Please try again." });
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const getCurrentDocumentName = () => {
+    if (step > 1 && step <= documentSteps.length + 1) {
+      return documentSteps[step - 2];
+    }
+    return "";
+  };
+
+  const getDocumentLabel = (docName) => {
+    const labels = {
+      resume: "Resume",
+      tenthMarksheet: "10th Marksheet",
+      twelfthMarksheet: "12th Marksheet",
+      aadharProof: "Aadhaar Proof",
+      graduationMarksheet: "Graduation Marksheet",
+      postGraduationMarksheet: "Post Graduation Marksheet",
+      experienceLetter: "Experience Letter",
+      profilePhoto: "Profile Photo",
+      skills: "Skills"
+    };
+    return labels[docName] || docName;
   };
 
   return (
@@ -164,155 +345,317 @@ const StartBGV = () => {
       <section className="form-container">
         <div className="progress-indicator">
           <div className={`step ${step >= 1 ? 'active' : ''}`}>1</div>
-          <div className="line"></div>
-          <div className={`step ${step >= 2 ? 'active' : ''}`}>2</div>
-          <div className="line"></div>
-          <div className={`step ${step >= 3 ? 'active' : ''}`}>3</div>
+          {documentSteps.map((_, index) => (
+            <React.Fragment key={index}>
+              <div className="line"></div>
+              <div className={`step ${step >= index + 2 ? 'active' : ''}`}>{index + 2}</div>
+            </React.Fragment>
+          ))}
         </div>
 
         <div className="start-bgv-container">
           {step === 1 && <h2 className="page-heading">Start Background Verification</h2>}
 
+          {submitMessage.text && (
+            <div className={`submit-message ${submitMessage.type}`}>
+              {submitMessage.text}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
             {step === 1 && (
               <div className="form-section active">
-                <h3>Personal Details</h3>
+                <h3>Personal Information</h3>
 
-                <div className="form-group name-group">
-                  <label>Full Name</label>
-                  <div className="name-fields">
-                    <input type="text" name="firstName" placeholder="First Name" onChange={handleChange} required />
-                    {errors.firstName && <span className="error">{errors.firstName}</span>}
-                    <input type="text" name="middleName" placeholder="Middle Name" onChange={handleChange} />
-                    <input type="text" name="lastName" placeholder="Last Name" onChange={handleChange} required />
-                    {errors.lastName && <span className="error">{errors.lastName}</span>}
-                  </div>
+                <div className="form-group">
+                  <label>First Name</label>
+                  <input 
+                    type="text" 
+                    name="firstName" 
+                    placeholder="First Name" 
+                    value={formData.firstName}
+                    onChange={handleChange} 
+                    required 
+                  />
+                  {errors.firstName && <span className="error">{errors.firstName}</span>}
+                </div>
+
+                <div className="form-group">
+                  <label>Last Name</label>
+                  <input 
+                    type="text" 
+                    name="lastName" 
+                    placeholder="Last Name" 
+                    value={formData.lastName}
+                    onChange={handleChange} 
+                    required 
+                  />
+                  {errors.lastName && <span className="error">{errors.lastName}</span>}
                 </div>
 
                 <div className="form-group">
                   <label>Email</label>
-                  <input type="email" name="email" placeholder="Enter Email" onChange={handleChange} required />
+                  <input 
+                    type="email" 
+                    name="email" 
+                    placeholder="Enter Email" 
+                    value={formData.email}
+                    onChange={handleChange} 
+                    required 
+                  />
                   {errors.email && <span className="error">{errors.email}</span>}
                 </div>
+
                 <div className="form-group">
                   <label>Phone</label>
-                  <input type="tel" name="phone" placeholder="Enter Phone Number" onChange={handleChange} required />
+                  <input 
+                    type="tel" 
+                    name="phone" 
+                    placeholder="Enter Phone Number" 
+                    value={formData.phone}
+                    onChange={handleChange} 
+                    required 
+                  />
                   {errors.phone && <span className="error">{errors.phone}</span>}
                 </div>
+
                 <div className="form-group">
                   <label>Address</label>
-                  <textarea name="address" placeholder="Enter Address" onChange={handleChange} required></textarea>
+                  <textarea 
+                    name="address" 
+                    placeholder="Enter Address" 
+                    value={formData.address}
+                    onChange={handleChange} 
+                    required
+                  ></textarea>
                   {errors.address && <span className="error">{errors.address}</span>}
                 </div>
-                <div className="form-group">
-                  <label>Profile Photo</label>
-                  <input type="file" name="profilePhoto" onChange={handleChange} accept=".jpeg, .jpg, .png" />
-                  {errors.profilePhoto && <span className="error">{errors.profilePhoto}</span>}
-                </div>
-                <button type="button" className="next-btn" onClick={nextStep}>Next</button>
-              </div>
-            )}
 
-            {step === 2 && (
-              <div className="form-section active"> 
-                <h3>Education & Experience</h3>
                 <div className="form-group">
                   <label>Education</label>
-                  <input type="text" name="education" placeholder="Highest Qualification" onChange={handleChange} required />
+                  <input 
+                    type="text" 
+                    name="education" 
+                    placeholder="Highest Qualification" 
+                    value={formData.education}
+                    onChange={handleChange} 
+                    required 
+                  />
                   {errors.education && <span className="error">{errors.education}</span>}
                 </div>
+
                 <div className="form-group">
-                  <label>Current Employer</label>
-                  <input type="text" name="currentEmployer" placeholder="Employer Name" onChange={handleChange} />
+                  <label>Current Employer (Optional)</label>
+                  <input 
+                    type="text" 
+                    name="currentEmployer" 
+                    placeholder="Employer Name" 
+                    value={formData.currentEmployer}
+                    onChange={handleChange} 
+                  />
                 </div>
+
                 <div className="form-group">
-                  <label>Designation</label>
-                  <input type="text" name="designation" placeholder="Designation" onChange={handleChange} />
+                  <label>Designation (Optional)</label>
+                  <input 
+                    type="text" 
+                    name="designation" 
+                    placeholder="Designation" 
+                    value={formData.designation}
+                    onChange={handleChange} 
+                  />
                 </div>
+
                 <div className="form-group">
                   <label>Experience (Years)</label>
-                  <input type="number" name="experience" placeholder="Years of Experience" onChange={handleChange} />
+                  <input 
+                    type="number" 
+                    name="experience" 
+                    placeholder="Years of Experience" 
+                    value={formData.experience}
+                    onChange={handleChange} 
+                  />
                 </div>
-                <button type="button" className="prev-btn" onClick={prevStep}>Back</button>
-                <button type="button" className="next-btn" onClick={nextStep}>Next</button>
+
+                <div className="form-group">
+                  <label>Passport ID (Optional)</label>
+                  <input 
+                    type="text" 
+                    name="passportId" 
+                    placeholder="Passport ID" 
+                    value={formData.passportId}
+                    onChange={handleChange} 
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>PF ID (Optional)</label>
+                  <input 
+                    type="text" 
+                    name="pfId" 
+                    placeholder="PF ID" 
+                    value={formData.pfId}
+                    onChange={handleChange} 
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>PAN Number</label>
+                  <input 
+                    type="text" 
+                    name="panNo" 
+                    placeholder="PAN Number" 
+                    value={formData.panNo}
+                    onChange={handleChange} 
+                    required 
+                  />
+                  {errors.panNo && <span className="error">{errors.panNo}</span>}
+                </div>
+
+                <button 
+                  type="button" 
+                  className="next-btn" 
+                  onClick={nextStep}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Submitting..." : "Next"}
+                </button>
               </div>
             )}
 
-{step === 3 && (
-  <div className="form-section active">
-    <h3>Skills & Documents</h3>
-    <div className="form-group">
-      <label>Skills</label>
-      <div className="skills-input-container">
-        <select 
-          name="skills" 
-          onChange={handleSkillChange}
-          value=""
-          className="skills-dropdown"
-        >
-          <option value="" disabled>Select a skill</option>
-          {predefinedSkills.map((skill, index) => (
-            <option key={index} value={skill}>
-              {skill}
-            </option>
-          ))}
-        </select>
-        
-        {showCustomSkillInput && (
-          <div className="custom-skill-input">
-            <input
-              type="text"
-              value={customSkill}
-              onChange={(e) => setCustomSkill(e.target.value)}
-              placeholder="Enter skill"
-              className="custom-skill-text"
-            />
-            <button 
-              type="button" 
-              onClick={handleCustomSkillAdd}
-              className="add-skill-btn"
-            >
-              +
-            </button>
-          </div>
-        )}
-      </div>
-      
-      <div className="selected-skills-container">
-        {formData.skills.map((skill, index) => (
-          <span key={index} className="skill-tag">
-            {skill}
-            <button 
-              type="button" 
-              onClick={() => removeSkill(skill)}
-              className="remove-skill"
-            >
-              ×
-            </button>
-          </span>
-        ))}
-      </div>
-      
-      {errors.skills && <span className="error">{errors.skills}</span>}
-    </div>
+            {step > 1 && step <= documentSteps.length + 1 && (
+              <div className="form-section active">
+                <h3>Upload {getDocumentLabel(getCurrentDocumentName())}</h3>
                 
-                {[
-                  "resume",
-                  "aadharProof",
-                  "tenthMarksheet",
-                  "twelfthMarksheet",
-                  "graduationMarksheet",
-                  "postGraduationMarksheet",
-                  "experienceLetter",
-                ].map((file) => (
-                  <div className="form-group file-upload" key={file}>
-                    <label>{file.replace(/([A-Z])/g, " $1").trim()}</label>
-                    <input type="file" name={file} onChange={handleChange} accept=".pdf" />
-                    {errors[file] && <span className="error">{errors[file]}</span>}
+                {getCurrentDocumentName() !== "skills" ? (
+                  <div className="form-group file-upload">
+                    <input 
+                      type="file" 
+                      name={getCurrentDocumentName()} 
+                      onChange={handleFileChange} 
+                      accept={getCurrentDocumentName() === "profilePhoto" ? ".jpeg, .jpg, .png" : ".pdf"}
+                      ref={fileInputRef}
+                      key={`file-input-${step}`}
+                      required={!["postGraduationMarksheet", "experienceLetter"].includes(getCurrentDocumentName())}
+                    />
+                    {errors[getCurrentDocumentName()] && (
+                      <span className="error">{errors[getCurrentDocumentName()]}</span>
+                    )}
+                    <p className="file-upload-hint">
+                      {getCurrentDocumentName() === "profilePhoto" 
+                        ? "Please upload a JPEG, JPG, or PNG file (max 10MB)"
+                        : "Please upload a PDF file (max 10MB)"}
+                      {["postGraduationMarksheet", "experienceLetter"].includes(getCurrentDocumentName()) && " (Optional)"}
+                    </p>
+                    {formData[getCurrentDocumentName()] && (
+                      <p className="file-selected">
+                        Selected file: {formData[getCurrentDocumentName()].name}
+                      </p>
+                    )}
                   </div>
-                ))}
-                <button type="button" className="prev-btn" onClick={prevStep}>Back</button>
-                <button type="submit" className="submit-btn">Submit</button>
+                ) : (
+                  <div className="form-group">
+                    <label>Skills</label>
+                    <div className="skills-input-container">
+                      <select 
+                        name="skills" 
+                        onChange={handleSkillChange}
+                        value=""
+                        className="skills-dropdown"
+                      >
+                        <option value="" disabled>Select a skill</option>
+                        {predefinedSkills.map((skill, index) => (
+                          <option key={index} value={skill}>
+                            {skill}
+                          </option>
+                        ))}
+                      </select>
+                      
+                      {showCustomSkillInput && (
+                        <div className="custom-skill-input" style={{ marginTop: '10px', width: '100%' }}>
+                          <input
+                            type="text"
+                            value={customSkill}
+                            onChange={(e) => setCustomSkill(e.target.value)}
+                            placeholder="Enter custom skill"
+                            className="custom-skill-text"
+                            style={{ width: '70%', padding: '8px' }}
+                          />
+                          <button 
+                            type="button" 
+                            onClick={handleCustomSkillAdd}
+                            className="add-skill-btn"
+                            style={{ 
+                              marginLeft: '10px',
+                              padding: '8px 15px',
+                              backgroundColor: '#4CAF50',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Add Skill
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="selected-skills-container" style={{ marginTop: '10px' }}>
+                      {formData.skills.map((skill, index) => (
+                        <span key={index} className="skill-tag" style={{ 
+                          display: 'inline-block',
+                          backgroundColor: '#f1f1f1',
+                          padding: '5px 10px',
+                          margin: '5px',
+                          borderRadius: '20px',
+                          fontSize: '14px'
+                        }}>
+                          {skill}
+                          <button 
+                            type="button" 
+                            onClick={() => removeSkill(skill)}
+                            className="remove-skill"
+                            style={{
+                              marginLeft: '5px',
+                              backgroundColor: 'transparent',
+                              border: 'none',
+                              color: '#ff0000',
+                              cursor: 'pointer',
+                              fontSize: '12px'
+                            }}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                    
+                    {errors.skills && <span className="error">{errors.skills}</span>}
+                  </div>
+                )}
+
+                <div className="form-navigation">
+                  <button type="button" className="prev-btn" onClick={prevStep}>Back</button>
+                  {step <= documentSteps.length ? (
+                    <button 
+                      type="button" 
+                      className="next-btn" 
+                      onClick={nextStep}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Uploading..." : "Next"}
+                    </button>
+                  ) : (
+                    <button 
+                      type="submit" 
+                      className="submit-btn"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? "Submitting..." : "Submit"}
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </form>

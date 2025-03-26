@@ -6,8 +6,7 @@ const AddUser = () => {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
-  
+  const [role, setRole] = useState("USER"); // Default role is "USER"
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,15 +93,13 @@ const AddUser = () => {
         </div>
 
         <div className="form-group">
-          <label>Role:</label>
-          <input
-            type="text"
-            placeholder="Enter Role as USER or ADMIN"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            required
-          />
-        </div>
+  <label>Role:</label>
+  <select value={role} onChange={(e) => setRole(e.target.value)} required>
+    <option value="USER">USER</option>
+    <option value="ADMIN">ADMIN</option>
+  </select>
+</div>
+
 
         <button type="submit" className="submit-btn">Add User</button>
       </form>
