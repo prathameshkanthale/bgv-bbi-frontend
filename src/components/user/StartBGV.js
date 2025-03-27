@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../Styles/startBGV.css";
 import Header from "../header/Header";
+import { useLocation } from "react-router-dom";
 
 const StartBGV = () => {
+
   const [formData, setFormData] = useState({ 
     firstName: "",
     lastName: "",
@@ -11,7 +13,7 @@ const StartBGV = () => {
     address: "",
     education: "",
     currentEmployer: "",
-    designation: "",
+    designation: "", 
     experience: "",
     passportId: "",
     pfId: "",
@@ -25,6 +27,7 @@ const StartBGV = () => {
     postGraduationMarksheet: null,
     experienceLetter: null,
     skills: [],
+
   });
 
   const [step, setStep] = useState(1);
@@ -34,7 +37,11 @@ const StartBGV = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState({ type: "", text: "" });
   const [detailId, setDetailId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef(null);
+  const location=useLocation();
+  const userData=location.state?.User;
+
   
   const predefinedSkills = [
     "Java",
@@ -58,7 +65,62 @@ const StartBGV = () => {
     "skills"
   ];
 
+
+
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userId= userData?.userDetailId;
+        console.log("userId",userId);
+
+        const response = await fetch(`/users/${userId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+
+        const data = await response.json();
+        
+        if (data) {
+          setFormData(prev => ({
+            ...prev,
+            firstName: data.firstName || "",
+            lastName: data.lastName || "",
+            email: data.email || "",
+            phone: data.phone || "",
+            address: data.address || "",
+            education: data.education || "",
+            currentEmployer: data.currentEmployer || "",
+            designation: data.designation || "",
+            experience: data.experience || "",
+            passportId: data.passportId || "",
+            pfId: data.pfId || "",
+            panNo: data.panNo || "",
+            skills: data.skills || []
+          }));
+
+          if (data.detailId) {
+            setDetailId(data.detailId);
+            if (data.firstName && data.lastName && data.email) {
+              setStep(2);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setSubmitMessage({ type: "error", text: "Failed to load user data. Please refresh the page." });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
@@ -174,8 +236,8 @@ const StartBGV = () => {
   const submitPersonalInfo = async () => {
     setIsSubmitting(true);
     try {
-      const response = await fetch('/users', {
-        method: 'POST',
+      const response = await fetch('/users/{$detailId}/bgv',  { 
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -224,7 +286,6 @@ const StartBGV = () => {
       return false;
     }
 
-    // Skip upload for optional documents if no file selected
     if (!file && ["postGraduationMarksheet", "experienceLetter"].includes(type)) {
       return true;
     }
@@ -234,24 +295,17 @@ const StartBGV = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      console.log(`Uploading ${type} for user ${detailId}`, file);
-
       const response = await fetch(`/users/${detailId}/upload/${type}`, {
         method: 'POST',
         body: formData,
       });
 
-      console.log('Upload response:', response); 
-
       if (!response.ok) {
-        console.log('response not found', response); 
         const errorData = await response.json().catch(() => ({}));
-        console.log(errorData);
         throw new Error(errorData.message || `Failed to upload ${type}`);
       }
 
       const data = await response.text;
-      console.log(`Upload successful:`, data);
       setSubmitMessage({ type: "success", text: `${getDocumentLabel(type)} uploaded successfully!` });
       return true;
     } catch (error) {
@@ -338,6 +392,17 @@ const StartBGV = () => {
     };
     return labels[docName] || docName;
   };
+
+  if (isLoading) {
+    return (
+      <div>
+        <Header />
+        <div className="loading-container">
+          <p>Loading your information...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

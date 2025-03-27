@@ -27,11 +27,12 @@ const Login = () => {
       if (response.ok) {
         const result = await response.json(); // Assuming the response is in JSON format.
         
+        console.log(result);
         // Assuming the backend returns a role. Adjust this based on your API response structure
         if (result.role === "ADMIN") {
           navigate("/admin"); // Redirect to Admin page
         } else {
-          navigate("/user"); // Redirect to User page
+          navigate("/user",{state:{userData:result}}); // Redirect to User page
         }
       } else {
         const errorMessage = await response.text(); // Get error message from response

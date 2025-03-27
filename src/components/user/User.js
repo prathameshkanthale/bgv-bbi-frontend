@@ -1,10 +1,12 @@
 import React from "react";
-import { Outlet } from "react-router-dom"; 
+import { Outlet ,useLocation} from "react-router-dom"; 
 
 import "../Styles/User.css"; 
 import Header from '../header/Header';
 
-const User = () => {
+const User = () => { 
+  const location=useLocation();
+  const userData=location.state?.userData ;
   return (
     <div>
       {/* <nav className="user-navbar">
@@ -15,7 +17,9 @@ const User = () => {
 
         </ul>
       </nav> */}
-      <Header />
+
+      <Header User={userData} />
+
       {/* <div className="user-content"> */}
         {/* <h2>Welcome, User</h2>
         <p>Start your background verification process.</p> */}
