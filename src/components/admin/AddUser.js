@@ -36,7 +36,7 @@ const AddUser = () => {
 
       const data = await response.json();
       console.log(data);
-      alert(`User Added Successfully!\nUser ID: ${data.firstName}`);
+      alert(`User Added Successfully!\nUser Name: ${data.firstName}`);
       console.log(data.id);
     } catch (error) {
       console.error("Error adding user:", error);

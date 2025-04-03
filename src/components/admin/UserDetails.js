@@ -9,11 +9,13 @@ const UserDetails = () => {
   useEffect(() => {
     // Fetch user data (replace with actual API call)
     const fetchUsers = async () => {
-      const sampleUsers = [
-        { id: 1, firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com', password: 'password123', verificationStatus: 'Verified' },
-        { id: 2, firstName: 'Jane', lastName: 'Smith', email: 'jane.smith@example.com', password: 'password456', verificationStatus: 'Pending' }
-      ];
-      setUsers(sampleUsers);
+      const response = await fetch(`/user-login/getInfo`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const users=await response.json();
+      console.log(users);
+      setUsers(users);
     };
 
     fetchUsers();
@@ -24,8 +26,8 @@ const UserDetails = () => {
     console.log(`Update user with id: ${id}`);
   };
 
-  const handleDelete = (id) => {
-    console.log(`Delete user with id: ${id}`);
+  const handleDelete = (userId) => {
+    setUsers(prevUsers => prevUsers.filter(user => user.userId !== userId));
   };
 
   const handleMore = (id) => {
@@ -50,7 +52,7 @@ const UserDetails = () => {
       <table>
         <thead>
           <tr>
-            <th>User Id</th>
+           <th>User Id </th>
             <th>First Name</th>
             <th>Last Name</th>
             <th>Email Id</th>
@@ -61,17 +63,17 @@ const UserDetails = () => {
         </thead>
         <tbody>
           {filteredUsers.map(user => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
-              <td>{user.firstName}</td>
-              <td>{user.lastName}</td>
+            <tr key={user.userId}>
+             <td>{user.userId}</td>
+              <td>{user.user.firstName}</td>
+              <td>{user.user.lastName}</td>
               <td>{user.email}</td>
               <td>{user.password}</td>
-              <td>{user.verificationStatus}</td>
+              <td>{user.user.verificationStatus}</td>
               <td>
                 <button className="small-button update-button" onClick={() => handleUpdate(user.id)}>Update</button>
-                <button className="small-button delete-button" onClick={() => handleDelete(user.id)}>Delete</button>
-                <button className="small-button more-button" onClick={() => handleMore(user.id)}>More</button>
+                <button className="small-button delete-button" onClick={() => handleDelete(user.userId)}>Delete</button>
+                <button className="small-button more-button" onClick={() => handleMore(user.user.detailId)}>More</button>
               </td>
             </tr>
           ))}

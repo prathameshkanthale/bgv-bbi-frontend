@@ -17,7 +17,7 @@ const Header = ({User}) => {
       <ul className="nav-links">
         <li><Link to="/user">Home</Link></li> 
         <li><Link to="/user/start-bgv" state={{User}}>Start BGV</Link></li> 
-        <li><Link to="/user/change-password">Change Password</Link></li>
+        <li><Link to="/user/change-password"  state={{User}}>Change Password</Link></li>
         <li><Link to="/user/contact-us">Contact Us</Link></li>
       </ul>
       <button className="logout-btn" onClick={handleLogout}>Logout</button>

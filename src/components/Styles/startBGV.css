@@ -185,6 +185,7 @@ button {
     font-size: 1rem;
     cursor: pointer;
     transition: background 0.3s ease;
+    
 }
 
 /* Next and Previous Buttons */
@@ -251,6 +252,7 @@ button {
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 1rem;
+
 }
 
 .add-skill-btn {
@@ -322,11 +324,11 @@ button {
     }
 
     /* Skills section mobile adjustments */
-    .custom-skill-input {
-        flex-direction: column;
+    /* .custom-skill-input {
+        
     }
     
     .add-skill-btn {
         width: 100%;
-    }
+    } */
 }

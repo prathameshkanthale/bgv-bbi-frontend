@@ -1,31 +1,30 @@
 import React, { useState } from "react";
 import "../Styles/changePassword.css"; 
-import { useParams } from "react-router-dom";
+import { useParams,useLocation } from "react-router-dom";
 
 const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Assuming you're getting userId from URL params or from auth context
-  const { userId } = useParams(); // If using React Router and userId is in URL
+
+  const location = useLocation();
+  const userData = location.state?.User;
+  const userId = userData?.userId;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setMessage("");
 
     // Frontend validation
-    if (newPassword !== confirmPassword) {
-      setError("New password and confirm password do not match!");
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      setMessage("All fields are required!");
       return;
     }
 
-    if (!oldPassword || !newPassword || !confirmPassword) {
-      setError("All fields are required!");
+    if (newPassword !== confirmPassword) {
+      setMessage("New password and confirm password do not match!");
       return;
     }
 
@@ -34,29 +33,23 @@ const ChangePassword = () => {
     try {
       const response = await fetch(`/user-login/changePassword/${userId}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          oldPassword,
-          newPassword,
-          confirmPassword
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
       });
 
-      const data = await response.json();
+      const data = await response.text();
+      console.log(data);
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to change password");
+        throw new Error(data);
       }
 
-      setSuccess("Password changed successfully!");
-      // Clear form fields
+      setMessage(" Password changed successfully!");
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      setError(err.message || "An error occurred while changing password");
+      setMessage(`❌ ${err.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -66,8 +59,7 @@ const ChangePassword = () => {
     <div className="change-password-container">
       <div className="change-password-box">
         <h2>Change Password</h2>
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
+        {message && <div className={message.includes("❌") ? "error-message" : "success-message"}>{message}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Old Password</label>

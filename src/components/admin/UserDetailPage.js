@@ -3,39 +3,32 @@ import { useParams } from 'react-router-dom';
 import './../Styles/UserDetailPage.css';
 
 const UserDetailPage = () => {
-  const { id } = useParams();
-  const [userDetails, setUserDetails] = useState(null);
+  const { id } = useParams(); 
+
+  const [userDetails, setUserDetails] = useState(null); 
+  
 
   useEffect(() => {
-    // Fetch user details based on ID (Replace with actual API call)
+    // Fetch user details based on ID (Replace with actual API call) 
     const fetchUserDetails = async () => {
-      const sampleUserDetails = {
-        id: id,
-        phoneNumber: '9876543210',
-        address: '123 Main Street, City',
-        aadharProof: 'aadhar_card.jpg',
-        tenthMarksheet: '10th_marksheet.pdf',
-        twelfthMarksheet: '12th_marksheet.pdf',
-        education: 'B.Tech Computer Science',
-        currentEmployer: 'Tech Corp',
-        designation: 'Software Engineer',
-        experience: '3 Years',
-        skills: ['React', 'Node.js', 'Spring Boot'],
-        resume: 'resume.pdf',
-        profilePhoto: 'profile.jpg',
-        graduationMarksheet: 'graduation_marksheet.pdf',
-        postGraduationMarksheet: 'post_graduation_marksheet.pdf',
-        experienceLetter: 'experience_letter.pdf',
-      };
+    
+      const response = await fetch(`/users/details/${id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const users=await response.json();
+    
+       console.log(users);
 
-      setUserDetails(sampleUserDetails);
+      setUserDetails(users);
+
     };
 
     fetchUserDetails();
-  }, [id]);
+  }, []);
 
   const handleUpdate = () => {
-    console.log("Update button clicked for user ID:", id);
+   // console.log("Update button clicked for user ID:", id);
     // Implement update functionality (e.g., open form for editing)
   };
 
@@ -60,7 +53,7 @@ const UserDetailPage = () => {
         <tbody>
           <tr>
             <td>📞 Phone Number:</td>
-            <td>{userDetails.phoneNumber}</td>
+            <td>{userDetails.phone}</td>
           </tr>
           <tr>
             <td>🏠 Address:</td>
@@ -68,15 +61,15 @@ const UserDetailPage = () => {
           </tr>
           <tr>
             <td>🆔 Aadhar Proof:</td>
-            <td><a href={`/uploads/${userDetails.aadharProof}`} download>Download</a></td>
+            <td><a href={`http://localhost:8080/files/download/aadhar/${id}`} download>Download</a></td>
           </tr>
           <tr>
             <td>📜 10th Marksheet:</td>
-            <td><a href={`/uploads/${userDetails.tenthMarksheet}`} download>Download</a></td>
+            <td><a href={`http://localhost:8080/files/download/tenth-marksheet/${id}`} download>Download</a></td>
           </tr>
           <tr>
             <td>📜 12th Marksheet:</td>
-            <td><a href={`/uploads/${userDetails.twelfthMarksheet}`} download>Download</a></td>
+            <td><a href={`http://localhost:8080/files/download/twelfth-marksheet/${id}`} download>Download</a></td>
           </tr>
           <tr>
             <td>🎓 Education Qualification:</td>
@@ -95,28 +88,31 @@ const UserDetailPage = () => {
             <td>{userDetails.experience}</td>
           </tr>
           <tr>
-            <td>🛠️ Technical Skills:</td>
-            <td>{userDetails.skills.join(', ')}</td>
+          <td>🛠️ Technical Skills:</td>
+<td>{userDetails.skills.map((s) => s.skillName).join(', ')}</td>
+
+            
           </tr>
           <tr>
             <td>📄 Resume:</td>
-            <td><a href={`/uploads/${userDetails.resume}`} download>Download</a></td>
+            <td><a href={`http://localhost:8080/files/download/resume/${id}`} download>Download</a></td>
           </tr>
           <tr>
             <td>🖼️ Profile Photo:</td>
-            <td><img src={`/uploads/${userDetails.profilePhoto}`} alt="Profile" width="100" /></td>
+            
+            <td><a href={`http://localhost:8080/files/download/profile-photo/${id}`} download>Download</a></td>
           </tr>
           <tr>
             <td>🎓 Graduation Marksheet:</td>
-            <td><a href={`/uploads/${userDetails.graduationMarksheet}`} download>Download</a></td>
+            <td><a href={`http://localhost:8080/files/download/graduation-marksheet/${id}`} download>Download</a></td>
           </tr>
           <tr>
             <td>🎓 Post Graduation Marksheet:</td>
-            <td><a href={`/uploads/${userDetails.postGraduationMarksheet}`} download>Download</a></td>
+            <td><a href={`http://localhost:8080/files/download/postgraduation-marksheet/${id}`} download>Download</a></td>
           </tr>
           <tr>
             <td>📜 Experience Letter:</td>
-            <td><a href={`/uploads/${userDetails.experienceLetter}`} download>Download</a></td>
+            <td><a href={`http://localhost:8080/files/download/experience-letter/${id}`} download>Download</a></td>
           </tr>
         </tbody>
       </table>

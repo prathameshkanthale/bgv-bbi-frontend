@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "./components/context/AuthContext";
 import "./Login.css";
 
 const Login = () => {
@@ -8,35 +9,34 @@ const Login = () => {
   const [error, setError] = useState("");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
-  const navigate = useNavigate(); // Initialize navigate function
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext); // Access login function from context
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      console.log("Credentails :" ,email);
-      console.log("Credentails :" ,password);
+      console.log("Credentials:", email, password);
+      
       const response = await fetch("/user/validateUser", {
         method: "POST",
-        
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ emailId: email, password: password }), // Prepare data for API
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailId: email, password }),
       });
-        console.log("response",response);
+
+      const result = await response.json();
+      console.log("Result:", result);
+
       if (response.ok) {
-        const result = await response.json(); // Assuming the response is in JSON format.
-        
-        console.log(result);
-        // Assuming the backend returns a role. Adjust this based on your API response structure
+        // Store token (or user role if needed)
+        login(result.token); // Save token in AuthContext & localStorage
+
         if (result.role === "ADMIN") {
-          navigate("/admin"); // Redirect to Admin page
+          navigate("/admin"); // Redirect to Admin
         } else {
-          navigate("/user",{state:{userData:result}}); // Redirect to User page
+          navigate("/user/start-bgv", { state: { userData: result } }); // Redirect to BGV page
         }
       } else {
-        const errorMessage = await response.text(); // Get error message from response
-        setError(errorMessage);
+        setError(result.response === "no password match" ? "Password is incorrect" : result.response || "Login failed.");
         setShowForgotPassword(true);
       }
     } catch (error) {

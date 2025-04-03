@@ -43,26 +43,39 @@ const StartBGV = () => {
   const userData=location.state?.User;
 
   
+  // const predefinedSkills = [
+  //   "Java",
+  //   "React",
+  //   "SQL",
+  //   "Python",
+  //   "Spring Boot",
+  //   "JavaScript",
+  //   "Other",
+  // ];
+
   const predefinedSkills = [
-    "Java",
-    "React",
-    "SQL",
-    "Python",
-    "Spring Boot",
-    "JavaScript",
-    "Other",
+    { id: 1, name: "Java" },
+    { id: 2, name: "React" },
+    { id: 3, name: "SQL" },
+    { id: 4, name: "Python" },
+    { id: 5, name: "Spring Boot" },
+    { id: 6, name: "JavaScript" },
+    // { id: 7, name: "Other" },
   ];
 
   const documentSteps = [
+  
+    "skills",
     "resume",
-    "tenthMarksheet",
-    "twelfthMarksheet",
-    "aadharProof",
-    "graduationMarksheet",
-    "postGraduationMarksheet",
-    "experienceLetter",
-    "profilePhoto",
-    "skills"
+    "10th-marksheet",
+    "12th-marksheet",
+    "aadhar-proof",
+    "graduation-marksheet",
+    "post-graduation-marksheet",
+    "experience-letter",
+    "profile-photo",
+    
+ 
   ];
 
 
@@ -73,13 +86,13 @@ const StartBGV = () => {
         const userId= userData?.userDetailId;
         console.log("userId",userId);
 
-        const response = await fetch(`/users/${userId}`, {
+        const response = await fetch(`/users/details/${userId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
           credentials: 'include'
-        });
+        }).catch(err => console.log(err));
 
         if (!response.ok) {
           throw new Error('Failed to fetch user data');
@@ -122,13 +135,13 @@ const StartBGV = () => {
 
     fetchUserData();
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [step]);
+  }, []);
 
   useEffect(() => {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  }, [step]);
+  }, []);
 
   const validateStep1 = () => {
     const newErrors = {};
@@ -177,6 +190,7 @@ const StartBGV = () => {
         newErrors[docName] = "This document is required";
       }
     } else if (docName === "skills") {
+      console.log("Adding skills....");
       if (formData.skills.length === 0) {
         newErrors.skills = "At least one skill is required";
       }
@@ -200,20 +214,21 @@ const StartBGV = () => {
       ...formData,
       [name]: files ? files[0] || null : null,
     });
-    e.target.value = "";
+    //e.target.value = "";
   };
 
-  const handleSkillChange = (e) => {
-    const selectedSkill = e.target.value;
-    if (selectedSkill === "Other") {
-      setShowCustomSkillInput(true);
-    } else if (selectedSkill && !formData.skills.includes(selectedSkill)) {
-      setFormData({
-        ...formData,
-        skills: [...formData.skills, selectedSkill],
-      });
+  const handleSkillChange = (event) => {
+    const selectedSkillId = parseInt(event.target.value); // Convert to number
+    const selectedSkill = predefinedSkills.find(skill => skill.id === selectedSkillId);
+  
+    if (selectedSkill) {
+      setFormData(prevState => ({
+        ...prevState,
+        skills: [...prevState.skills, { skillsId: selectedSkill.id, skillName: selectedSkill.name }]
+      }));
     }
   };
+  
 
   const handleCustomSkillAdd = () => {
     if (customSkill.trim() && !formData.skills.includes(customSkill)) {
@@ -229,14 +244,19 @@ const StartBGV = () => {
   const removeSkill = (skillToRemove) => {
     setFormData({
       ...formData,
-      skills: formData.skills.filter(skill => skill !== skillToRemove),
+      skills: formData.skills.filter(skill => 
+        (typeof skill === 'object' ? skill.skillName : skill) !== 
+        (typeof skillToRemove === 'object' ? skillToRemove.skillName : skillToRemove)
+      ),
     });
   };
+
+
 
   const submitPersonalInfo = async () => {
     setIsSubmitting(true);
     try {
-      const response = await fetch('/users/{$detailId}/bgv',  { 
+      const response = await fetch(`/users/${detailId}/bgv`,  { 
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -294,6 +314,7 @@ const StartBGV = () => {
     try {
       const formData = new FormData();
       formData.append('file', file);
+      console.log("type",type);
 
       const response = await fetch(`/users/${detailId}/upload/${type}`, {
         method: 'POST',
@@ -303,7 +324,9 @@ const StartBGV = () => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `Failed to upload ${type}`);
+        
       }
+
 
       const data = await response.text;
       setSubmitMessage({ type: "success", text: `${getDocumentLabel(type)} uploaded successfully!` });
@@ -320,6 +343,25 @@ const StartBGV = () => {
     }
   };
 
+  // const nextStep = async () => {
+  //   if (step === 1) {
+  //     if (!validateStep1()) return;
+  //     const success = await submitPersonalInfo();
+  //     if (!success) return;
+  //   } else if (step > 1 && step <= documentSteps.length + 1) {
+  //     const currentDoc = documentSteps[step - 2];
+  //     if (!validateDocumentStep(currentDoc)) return;
+      
+  //     if (currentDoc !== "skills") {
+  //       const uploadSuccess = await uploadDocument(currentDoc, formData[currentDoc]);
+  //       if (!uploadSuccess) return;
+  //     }
+  //   }
+    
+  //   setStep(step + 1);
+  // };
+
+
   const nextStep = async () => {
     if (step === 1) {
       if (!validateStep1()) return;
@@ -327,32 +369,69 @@ const StartBGV = () => {
       if (!success) return;
     } else if (step > 1 && step <= documentSteps.length + 1) {
       const currentDoc = documentSteps[step - 2];
+  
       if (!validateDocumentStep(currentDoc)) return;
-      
-      if (currentDoc !== "skills") {
+  
+      if (currentDoc === "skills") {
+        // Upload skills data
+        console.log("skills: detId"+detailId);
+        try {
+          if (detailId && formData.skills.length > 0) {
+
+            const response = await fetch(`/skills/users/${detailId}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                skills: formData.skills.map(skill => skill.skillsId) // Extract IDs only
+              }),
+              
+            });
+
+  
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || 'Failed to save skills');
+            }
+  
+            setSubmitMessage({ type: "success", text: "Skills uploaded successfully!" });
+          }
+        } catch (error) {
+          console.error('Error uploading skills:', error);
+          setSubmitMessage({ type: "error", text: error.message || "Failed to upload skills." });
+          return;
+        }
+      } else {
+        // Upload other documents
         const uploadSuccess = await uploadDocument(currentDoc, formData[currentDoc]);
         if (!uploadSuccess) return;
       }
     }
-    
+  
     setStep(step + 1);
   };
+  
+
 
   const prevStep = () => setStep(step - 1);
 
   const handleSubmit = async (e) => {
+    console.log("hiii: "+detailId);
     e.preventDefault();
     if (!validateDocumentStep("skills")) return;
-
+     console.log(formData.skills);
     setIsSubmitting(true);
     try {
       if (detailId && formData.skills.length > 0) {
-        const response = await fetch(`/users/${detailId}/skills`, {
+        console.log(detailId);
+        var skillId=formData.skills.map((s)=>s.skillsId);
+        console.log(skillId);
+        const response = await fetch(`/skills/users/${detailId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ skills: formData.skills })
+          body: JSON.stringify({ skills: skillId })
+
         });
 
         if (!response.ok) {
@@ -360,7 +439,7 @@ const StartBGV = () => {
           throw new Error(errorData.message || 'Failed to save skills');
         }
 
-        const data = await response.json();
+        //const data = await response.json();
         setSubmitMessage({ type: "success", text: "Background verification submitted successfully!" });
       }
     } catch (error) {
@@ -381,13 +460,13 @@ const StartBGV = () => {
   const getDocumentLabel = (docName) => {
     const labels = {
       resume: "Resume",
-      tenthMarksheet: "10th Marksheet",
-      twelfthMarksheet: "12th Marksheet",
-      aadharProof: "Aadhaar Proof",
-      graduationMarksheet: "Graduation Marksheet",
-      postGraduationMarksheet: "Post Graduation Marksheet",
-      experienceLetter: "Experience Letter",
-      profilePhoto: "Profile Photo",
+      tenthMarksheet: "10th-marksheet",
+      twelfthMarksheet: "12th-marksheet",
+      aadharProof: "aadhar-proof",
+      graduationMarksheet: "graduation-marksheet",
+      postGraduationMarksheet: "post-graduation-marksheet",
+      experienceLetter: "experience-letter",
+      profilePhoto: "profile-photo",
       skills: "Skills"
     };
     return labels[docName] || docName;
@@ -629,10 +708,13 @@ const StartBGV = () => {
                         className="skills-dropdown"
                       >
                         <option value="" disabled>Select a skill</option>
-                        {predefinedSkills.map((skill, index) => (
-                          <option key={index} value={skill}>
-                            {skill}
+                        {
+                        
+                        predefinedSkills.map((skill, index) => (
+                          <option key={skill.id} value={skill.id}>
+                            {skill.name}
                           </option>
+
                         ))}
                       </select>
                       
@@ -644,7 +726,7 @@ const StartBGV = () => {
                             onChange={(e) => setCustomSkill(e.target.value)}
                             placeholder="Enter custom skill"
                             className="custom-skill-text"
-                            style={{ width: '70%', padding: '8px' }}
+                            style={{ width: '80%', padding: '8px' }}
                           />
                           <button 
                             type="button" 
@@ -657,7 +739,8 @@ const StartBGV = () => {
                               color: 'white',
                               border: 'none',
                               borderRadius: '4px',
-                              cursor: 'pointer'
+                              cursor: 'pointer',
+                              width:'20%' ,
                             }}
                           >
                             Add Skill
@@ -667,34 +750,34 @@ const StartBGV = () => {
                     </div>
                     
                     <div className="selected-skills-container" style={{ marginTop: '10px' }}>
-                      {formData.skills.map((skill, index) => (
-                        <span key={index} className="skill-tag" style={{ 
-                          display: 'inline-block',
-                          backgroundColor: '#f1f1f1',
-                          padding: '5px 10px',
-                          margin: '5px',
-                          borderRadius: '20px',
-                          fontSize: '14px'
-                        }}>
-                          {skill}
-                          <button 
-                            type="button" 
-                            onClick={() => removeSkill(skill)}
-                            className="remove-skill"
-                            style={{
-                              marginLeft: '5px',
-                              backgroundColor: 'transparent',
-                              border: 'none',
-                              color: '#ff0000',
-                              cursor: 'pointer',
-                              fontSize: '12px'
-                            }}
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
+  {formData.skills.map((skill, index) => (
+    <span key={index} className="skill-tag" style={{ 
+      display: 'inline-block',
+      backgroundColor: '#f1f1f1',
+      padding: '5px 10px',
+      margin: '5px',
+      borderRadius: '20px',
+      fontSize: '14px'
+    }}>
+      {typeof skill === 'object' ? skill.skillName : skill}
+      <button 
+        type="button" 
+        onClick={() => removeSkill(skill)}
+        className="remove-skill"
+        style={{
+          marginLeft: '5px',
+          backgroundColor: 'transparent',
+          border: 'none',
+          color: '#ff0000',
+          cursor: 'pointer',
+          fontSize: '12px'
+        }}
+      >
+        ×
+      </button>
+    </span>
+  ))}
+</div>
                     
                     {errors.skills && <span className="error">{errors.skills}</span>}
                   </div>
